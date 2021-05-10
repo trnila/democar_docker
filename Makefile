@@ -6,10 +6,9 @@ build:
 #	docker push $(IMAGE)
 
 create:
-	docker run --privileged --network=host \
+	docker run --privileged \
 		-v /tmp:/tmp \
 		-v $(PWD)/ws:/ws \
-		-v $(PWD)/ws/:/root/ \
 		--name ros -it $(IMAGE)
 
 start: setup
