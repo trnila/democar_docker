@@ -1,14 +1,14 @@
-#IMAGE=192.168.10.1:2000/democarros
 IMAGE=democarros
 
 build:
 	docker build -t $(IMAGE) .
-#	docker push $(IMAGE)
 
-create:
-	docker run --privileged \
+recreate:
+	docker rm -f /ros || true
+	docker run \
 		-v /tmp:/tmp \
-		-v $(PWD)/ws:/ws \
+		-v $(PWD):/ws/ \
+		-d \
 		--name ros -it $(IMAGE)
 
 start: setup

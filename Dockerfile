@@ -30,9 +30,6 @@ RUN mkdir -p /tools
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly -y
 ENV PATH=/root/.cargo/bin:$PATH
-RUN apt-get install -y clang
-RUN git clone https://github.com/trnila/zenoh-plugin-dds.git /tools/zenoh-plugin-dds -b gstreamer && cd /tools/zenoh-plugin-dds/ && cargo build --release && cp ./target/release/zenoh-bridge-dds /usr/local/bin
-
 RUN sudo apt install -y \
   libgstreamer1.0-dev \
   libgstreamer-plugins-base1.0-dev \
@@ -41,7 +38,9 @@ RUN sudo apt install -y \
   gstreamer1.0-plugins-bad \
   gstreamer1.0-plugins-ugly \
   gstreamer1.0-libav \
-  libgstrtspserver-1.0-dev
+  libgstrtspserver-1.0-dev \
+  clang
+RUN git clone https://github.com/trnila/zenoh-plugin-dds.git /tools/zenoh-plugin-dds -b gstreamer && cd /tools/zenoh-plugin-dds/ && cargo build --release && cp ./target/release/zenoh-bridge-dds /usr/local/bin
 
 RUN sudo apt install -y python3-opencv
 
