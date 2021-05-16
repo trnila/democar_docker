@@ -1,7 +1,8 @@
-IMAGE=democarros
+IMAGE=trnila/democar
 
 build:
 	docker build -t $(IMAGE) .
+	docker push $(IMAGE)
 
 recreate:
 	docker rm -f /ros || true
