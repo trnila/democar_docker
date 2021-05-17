@@ -7,6 +7,7 @@ build:
 recreate:
 	docker pull $(IMAGE)
 	docker rm -f /ros || true
+	touch .bash_history
 	docker run \
 		--network host \
 		-v /tmp:/tmp \
