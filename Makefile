@@ -7,19 +7,18 @@ build:
 recreate:
 	docker rm -f /ros || true
 	docker run \
+		--network host \
 		-v /tmp:/tmp \
+		-e DISPLAY=$(DISPLAY) \
 		-v $(PWD):/ws/ \
+		-v $(PWD)/.bash_history:/root/.bash_history \
+		-v $(HOME)/.Xauthority:/root/.Xauthority \
 		-d \
 		--name ros -it $(IMAGE)
 
 start: setup
 	docker start ros
 
-setup:
-			sudo sysctl -w net.ipv4.ipfrag_time=3
-			sudo sysctl -w net.ipv4.ipfrag_high_thresh=234217728
-			sudo sysctl -w net.core.rmem_max=2147483647
-
 enter:
-	DISPLAY=:0 xhost +localhost
+	xhost +localhost
 	docker exec -it ros /usr/local/bin/entry.sh
