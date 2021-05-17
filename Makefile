@@ -5,6 +5,7 @@ build:
 	docker push $(IMAGE)
 
 recreate:
+	docker pull $(IMAGE)
 	docker rm -f /ros || true
 	docker run \
 		--network host \
