@@ -42,7 +42,9 @@ RUN sudo apt install -y \
   clang
 RUN git clone https://github.com/trnila/zenoh-plugin-dds.git /tools/zenoh-plugin-dds -b gstreamer && cd /tools/zenoh-plugin-dds/ && cargo build --release && cp ./target/release/zenoh-bridge-dds /usr/local/bin
 
-RUN sudo apt install -y python3-opencv
+RUN sudo apt install -y python3-opencv python3-pip
+RUN pip3 install panda3d_viewer
+
 
 ADD entry.sh /usr/local/bin/
 ENTRYPOINT /usr/local/bin/entry.sh
