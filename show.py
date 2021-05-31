@@ -6,6 +6,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
 import cv2
+import cv_bridge
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSPresetProfiles, qos_profile_system_default
 import sys
 
@@ -23,10 +24,11 @@ class MinimalSubscriber(Node):
             sys.argv[1],
             self.listener_callback,
             qos_profile)
+        self.bridge = cv_bridge.CvBridge()
 
     def listener_callback(self, msg):
-        img = numpy.ndarray(shape=(480, 640, 3), buffer=msg.data, dtype=numpy.uint8)
-        cv2.imshow("img", img[...,::-1])
+        img = self.bridge.imgmsg_to_cv2(msg, "bgr8") 
+        cv2.imshow("img", img)
         cv2.waitKey(1)
 
 
