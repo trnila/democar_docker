@@ -17,6 +17,40 @@ from utils import point_cloud2
 from panda3d_viewer import Viewer, ViewerConfig
 from timeit import default_timer as timer
 
+def hsv_to_rgb(hsv):
+#    hsv[:, 0] = 
+#    hsv[:, 1] = hsv[:, 0]
+#    hsv[:, 2] = hsv[:, 0]
+    val = np.linalg.norm(hsv, axis=(1))
+    m = np.min(val)
+    M = np.max(val)
+    val = (val - m) / (M - m)
+
+    hsv[:, 0] = val
+    hsv[:, 1] = val
+    hsv[:, 2] = val
+
+    return hsv
+
+    hsv *= 255
+    hi = np.floor(hsv[..., 0] / 60.0) % 6
+    hi = hi.astype('uint8')
+    v = hsv[..., 2].astype('float')
+    f = (hsv[..., 0] / 60.0) - np.floor(hsv[..., 0] / 60.0)
+    p = v * (1.0 - hsv[..., 1])
+    q = v * (1.0 - (f * hsv[..., 1]))
+    t = v * (1.0 - ((1.0 - f) * hsv[..., 1]))
+
+    rgb = np.zeros(hsv.shape)
+    rgb[hi == 0, :] = np.dstack((v, t, p))[0][hi == 0, :]
+    rgb[hi == 1, :] = np.dstack((q, v, p))[0][hi == 1, :]
+    rgb[hi == 2, :] = np.dstack((p, v, t))[0][hi == 2, :]
+    rgb[hi == 3, :] = np.dstack((p, q, v))[0][hi == 3, :]
+    rgb[hi == 4, :] = np.dstack((t, p, v))[0][hi == 4, :]
+    rgb[hi == 5, :] = np.dstack((v, p, q))[0][hi == 5, :]
+
+    return rgb / 255
+
 class MinimalSubscriber(Node):
     def __init__(self):
         super().__init__('camera_viewer')
@@ -79,7 +113,25 @@ class MinimalSubscriber(Node):
                 continue
 
             points = point_cloud2.pointcloud2_to_xyz_array(frames['lidar'])
-            self.viewer.set_cloud_data('root', 'cloud', np.float32(points))
+            colors = np.ones((points.shape[0], 4), np.float32)
+
+            import matplotlib
+            
+            def ff(arg):
+                return matplotlib.colors.hsv_to_rgb((arg[2], 1, 1))
+
+            inp = np.clip(np.abs(points)[:, :3] / 3, 0, 1)
+#            colors[:, :3] = np.apply_along_axis(ff, 1, inp)
+            colors[:, :3] = hsv_to_rgb(inp)
+
+
+#            f = np.vectorize(matplotlib.colors.hsv_to_rgb)
+#            f = np.vectorize(ff)
+#            print(f([np.clip(np.abs(points)[:, :3] / 20, 0, 1) / 20]))
+#            colors[:, :3] = f(np.clip(np.abs(points)[:, :3] / 20, 0, 1))
+
+
+            self.viewer.set_cloud_data('root', 'cloud', np.float32(points), colors)
 
             res = np.concatenate((frames['segnet'], frames['detectnet']), axis=1)
             res = np.concatenate((res, self.viewer.get_screenshot('BGR')), axis=0)
